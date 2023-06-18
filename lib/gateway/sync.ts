@@ -4,9 +4,26 @@ import { canAccess, gitUpdate } from '../utils.js';
 
 const basedir = `${homedir()}/.kirucosm`;
 
+export type ChainInfo =
+  & {
+      chain_id: string;
+      chain_name: string;
+      pretty_name: string;
+      network_type: 'mainnet' | 'testnet' | 'devnet';
+      bech32_prefix: string;
+      slip44: number;
+      apis: {
+        [api_type: string]: {
+          address: string;
+          provider: string;
+        }[];
+      };
+    }
+  & Record<PropertyKey, any>;
+
 let initialized = false;
-let chainsById: Record<string, any> = {};
-let chainsByName: Record<string, any> = {};
+let chainsById: Record<string, ChainInfo> = {};
+let chainsByName: Record<string, ChainInfo> = {};
 let assetlists: Record<string, any> = {}; // only by chainId
 
 export async function init(force = false) {
@@ -20,6 +37,12 @@ export async function init(force = false) {
   
   initialized = true;
   return chainsByName;
+}
+
+export function getChain(identifier: string) {
+  if (identifier in chainsById) return chainsById[identifier];
+  if (identifier in chainsByName) return chainsByName[identifier];
+  throw Error(`Chain not found: ${identifier}`);
 }
 
 export function getChainById(chainId: string) {
