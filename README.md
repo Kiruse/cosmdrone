@@ -3,10 +3,10 @@ CosmDrone is a multitool for interfacing with virtually any Cosmos SDK-based blo
 
 **Features:**
 - [x] Query chain info (all the info on chain-registry)
+- [x] Query OpenAPI documentation
 - [x] Synchronizes with [cosmos/chain-registry](https://github.com/cosmos/chain-registry)
 - [x] Default `CosmosDirectory extends RestGateway` for configuration-less immediate access to blockchains
 - [x] Raw-query state of any standard Smart Contract on any configured chain (i.e. pretty much any contract using `cw_storage_plus`)
-- [ ] Query OpenAPI documentation
 - [ ] Smart-query contracts on any configured chain
 - [ ] List, iterate & filter all smart contract state (aka. models)
 - [ ] Sign & submit arbitrary transactions
