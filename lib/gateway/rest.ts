@@ -48,8 +48,11 @@ export class RestGateway {
     
     const baseurl = this.getBaseUrl(chainId);
     
-    const jsonPaths = ['static/openapi.json', 'openapi.json'];
-    const yamlPaths = ['static/openapi.yaml', 'openapi.yaml'];
+    const paths = ['static', ''];
+    const yamlExts = ['yaml', 'yml'];
+    
+    const yamlPaths = paths.flatMap(path => yamlExts.map(ext => `${path}/openapi.${ext}`));
+    const jsonPaths = paths.flatMap(path => `${path}/openapi.json`);
     
     const responses = await Promise.all([
       ...yamlPaths.map(path =>

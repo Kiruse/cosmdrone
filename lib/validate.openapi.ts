@@ -18,7 +18,6 @@ function validateOpenAPIPaths(paths: any) {
   for (const path in paths) {
     if (!path.startsWith('/'))
       throw Error(`Expected path to start with '/': ${path}`);
-    validateOpenAPIPaths(paths[path]);
   }
 }
 
