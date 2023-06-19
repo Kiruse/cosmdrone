@@ -7,6 +7,6 @@ yargs(process.argv.slice(2))
   # .command ibc
   .command wasm
   .demandCommand 1
-  .help 'help', 'KiruCosm Cosmos Blockchain utility tool'
+  .help 'help', 'CosmDrone Cosmos Blockchain multitool'
   .alias 'help', 'h'
   .argv

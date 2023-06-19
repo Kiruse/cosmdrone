@@ -1,21 +1,21 @@
 {
-  "name": "kirucosm",
+  "name": "cosmdrone",
   "version": "0.1.0",
-  "description": "Kiru's library + CLI for engaging Cosmos blockchains",
+  "description": "Multitool for Cosmos SDK based blockchains",
   "type": "module",
-  "types": "dist/index.d.ts",
-  "repository": "https://github.com/kiruse/kirucosm.git",
+  "types": "dist/lib/index.d.ts",
+  "repository": "https://github.com/kiruse/cosmdrone.git",
   "author": "Kiruse",
-  "license": "MIT",
+  "license": "LGPL-3.0",
   "main": "dist/lib/index.js",
   "bin": "./dist/cli/index.js",
   "scripts": {
     "dev": "node dist/cli/index.js",
-    "predev": "yarn build",
+    "watch": "tsc -p tsconfig.lib.json -w",
     "build": "yarn build:lib && yarn build:cli",
     "build:lib": "tsc -p tsconfig.lib.json",
     "build:cli": "coffee -mo dist/cli -c cli",
-    "prepack": "yarn build:lib && yarn build:cli"
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@cosmjs/amino": "^0.30.1",
