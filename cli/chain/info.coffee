@@ -11,11 +11,6 @@ export builder = (yargs) =>
       type: 'string'
 export handler = (argv) =>
   await spinner.named 'Initializing', => sync.init()
-  if info = sync.getChainByName argv.chain
-    console.log YAML.stringify info
-    process.exit 0
-  if info = sync.getChainById argv.chain
-    console.log YAML.stringify info
-    process.exit 0
-  console.error 'Chain not found'
-  process.exit 1
+  chain = sync.getChain argv.chain
+  console.log YAML.stringify chain
+  process.exit 0
