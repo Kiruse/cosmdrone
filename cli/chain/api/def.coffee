@@ -2,27 +2,25 @@ import * as YAML from 'yaml'
 import { GatewaySync as sync, CosmosDirectory } from '../../../lib/index.js'
 import spinner from '../../spinner.js'
 
-export command = 'find <chain> <regex>'
-export describe = 'Find API endpoints by RegEx pattern'
+export command = 'def <chain> <definition>'
+export describe = 'Show information on a specific OpenAPI definition'
 export builder = (yargs) =>
   yargs
     .positional 'chain',
       describe: 'Chain ID or name'
       type: 'string'
-    .positional 'regex',
-      describe: 'A RegEx pattern to filter the API'
+    .positional 'definition',
+      describe: 'The definition to show'
       type: 'string'
-      coerce: (arg) => new RegExp arg
 export handler = (argv) =>
   await spinner.named 'Initializing', => sync.init()
   chainId = sync.getChain(argv.chain).chain_id
-  { paths } = await CosmosDirectory.getOpenAPI(chainId)
-  filtered = Object.keys(paths)
-    .filter (path) => argv.regex.test path
-    .sort()
-  if filtered.length
-    console.log YAML.stringify filtered
+  { definitions } = await CosmosDirectory.getOpenAPI(chainId)
+  
+  def = definitions[argv.definition]
+  if def
+    console.log YAML.stringify def
     process.exit 0
   else
-    console.log 'nothing'
+    console.log 'no such definition'
     process.exit 1
