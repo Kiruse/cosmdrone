@@ -11,7 +11,8 @@
   "bin": "./dist/cli/index.js",
   "scripts": {
     "dev": "node dist/cli/index.js",
-    "watch": "tsc -p tsconfig.lib.json -w",
+    "watch:lib": "tsc -p tsconfig.lib.json -w",
+    "watch:cli": "coffee -wmo dist/cli -c cli",
     "build": "yarn build:lib && yarn build:cli",
     "build:lib": "tsc -p tsconfig.lib.json",
     "build:cli": "coffee -mo dist/cli -c cli",

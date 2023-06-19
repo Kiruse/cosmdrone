@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Watch Lib",
+      "type": "shell",
+      "command": "yarn watch:lib",
+      "runOptions": {
+        "runOn": "folderOpen",
+      },
+    },
+    {
+      "label": "Watch CLI",
+      "type": "shell",
+      "command": "yarn watch:cli",
+      "runOptions": {
+        "runOn": "folderOpen",
+      },
+    },
+  ],
+}
