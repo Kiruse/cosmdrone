@@ -1,6 +1,4 @@
-import { fromUtf8, toBase64 } from '@cosmjs/encoding'
 import * as YAML from 'yaml'
-import { getJoinedKey } from '../../../lib/utils.js'
 import { chain, CosmosDirectory, GatewaySync } from '../../../lib/index.js'
 import spinner from '../../spinner.js'
 
