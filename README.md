@@ -12,7 +12,8 @@ CosmDrone is a multitool for interfacing with virtually any Cosmos SDK-based blo
 - [ ] Sign & submit arbitrary transactions
 - [ ] Query IBC info (connections, channels, clients, human readable info)
 - [ ] *CLI:* use OpenAPI documentation to offer generic queries + autocomplete
-- [ ] `RPCGateway` + configurable gateways
+- [ ] `RPCGateway`
+- [ ] Configurable gateways & URLs (e.g. path to OpenAPI)
 - [ ] Many more - suggest some!
 
 Unchecked items above are sorted by my personal priority. I will gradually work off this checklist in this order.
