@@ -1,6 +1,7 @@
 import * as YAML from 'yaml'
 import { GatewaySync as sync, CosmosDirectory } from '../../../lib/index.js'
 import spinner from '../../spinner.js'
+import { getOpenAPISchemas } from '../../utils.js'
 
 export command = 'defs <chain>'
 export describe = 'List all (type) definitions of a chain'
@@ -12,9 +13,9 @@ export builder = (yargs) =>
 export handler = (argv) =>
   await spinner.named 'Initializing', => sync.init()
   chainId = sync.getChain(argv.chain).chain_id
-  { definitions } = await CosmosDirectory.getOpenAPI(chainId)
+  api = await CosmosDirectory.getOpenAPI(chainId)
   
-  defs = Object.keys(definitions).sort()
+  defs = Object.keys(getOpenAPISchemas api).sort()
   if defs.length
     console.log YAML.stringify defs
   else
