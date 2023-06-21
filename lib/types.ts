@@ -1,5 +1,7 @@
 import type { SemVer } from 'semver'
 
+export type BytesLike = Uint8Array | Buffer | string;
+
 /** Note that OpenAPI IS Swagger, however the Swagger API documentation was donated and then renamed
  * to OpenAPI. Some chains, however, still use the name/prop `swagger` instead of `openapi`, which
  * this type accounts for.

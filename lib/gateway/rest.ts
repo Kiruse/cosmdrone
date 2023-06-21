@@ -4,6 +4,7 @@ import * as YAML from 'yaml'
 import type { OpenAPI } from '../types.js'
 import { validateOpenAPI } from '../validate.openapi.js'
 import * as sync from './sync.js'
+import { reviver } from '../serde.js'
 
 type DefaultParams = Record<string, string>;
 
@@ -29,8 +30,9 @@ export class RestGateway {
   
   async get<P = DefaultParams, R = any>({ chainId, path, params }: RPCGetArgs<P>): Promise<R> {
     await sync.init();
-    const response = await axios.get(`${this.getBaseUrl(chainId)}/${path}`, { params });
-    return response.data;
+    const response = await axios.get(`${this.getBaseUrl(chainId)}/${path}`, { params, responseType: 'text' });
+    const { data } = JSON.parse(response.data, reviver);
+    return data;
   }
   
   async post<B = any, P = DefaultParams, R = any>({ chainId, path, params, body }: RPCPostArgs<B, P>): Promise<R> {
