@@ -7,13 +7,12 @@ import * as YAML from 'yaml'
 import { chain, CosmosDirectory, GatewaySync } from '../../../lib/index.js'
 import { replacer } from '../../../lib/serde.js'
 import spinner from '../../spinner.js'
-import { toBinaryFields, parseFields } from '../../utils.js'
+import { loadAddresses, parseFields, resolveAddresses, toBinaryFields } from '../../utils.js'
 
 eofstroke = if process.platform is 'win32' then 'Ctrl-Z' else 'Ctrl-D'
 
 export command = 'smart <chain> <contractAddress>'
-export describe = "Perform a defined smart query of a smart contract. " +
-  "When entering a message through stdin, you can use #{eofstroke} to signify the end of the message."
+export describe = "Perform a defined smart query of a smart contract."
 export builder = (yargs) =>
   yargs
     .positional 'chain',
@@ -57,7 +56,7 @@ export handler = (argv) =>
     msg = argv.file
   else
     if process.stdin.isTTY
-      console.log chalk.blue 'Enter message:'
+      console.log chalk.blue "Enter message. Press #{chalk.bold(eofstroke)} to finish, #{chalk.bold 'Ctrl-C'} to cancel."
     msg = await readFromStdin()
   
   data = if argv.yaml
@@ -65,9 +64,12 @@ export handler = (argv) =>
   else
     JSON.parse(msg)
   
+  addrs = await loadAddresses()
+  resolveAddresses data, addrs
   toBinaryFields data, parseFields argv.binary
+  contract = addrs[argv.contractAddress] ? argv.contractAddress
   
-  response = await spinner.named 'Querying...', => rpc.wasm.query.smart argv.contractAddress, JSON.stringify(data, replacer)
+  response = await spinner.named 'Querying...', => rpc.wasm.query.smart contract, JSON.stringify(data, replacer)
   console.log YAML.stringify response
   process.exit 0
 
@@ -75,6 +77,6 @@ readFromStdin = -> new Promise (resolve, reject) =>
   data = ''
   rl = readline.createInterface process.stdin
   rl.on 'line', (line) =>
-    data += line
+    data += line + '\n'
   rl.on 'close', =>
     resolve data

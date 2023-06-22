@@ -1,4 +1,10 @@
 import { fromBase64, fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding'
+import * as fs from 'fs/promises'
+import * as path from 'path'
+import * as YAML from 'yaml'
+import { DATADIR } from '../lib/utils.js'
+
+export ADDRESSBOOK = path.join DATADIR, 'addresses.yaml'
 
 export getOpenAPISchemas = (api) =>
   switch api.type
@@ -77,3 +83,19 @@ export deepset = (data, path, setter) =>
   assertField field
   obj[field] = setter(obj[field])
   obj
+
+export loadAddresses = => try YAML.parse await fs.readFile ADDRESSBOOK, 'utf8' catch then {}
+export resolveAddresses = (data, addresses) =>
+  if typeof data is 'string'
+    stripped = stripAddrPrefix data
+    if stripped of addresses
+      return addresses[stripped]
+    else
+      return data
+  else if typeof data is 'object'
+    for key, value of data
+      data[key] = resolveAddresses value, addresses
+    return data
+  else
+    return data
+export stripAddrPrefix = (addr) => addr.replace /^addr:/, ''
