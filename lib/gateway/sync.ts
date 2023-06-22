@@ -1,8 +1,5 @@
 import * as fs from 'fs/promises'
-import { homedir } from 'os'
-import { canAccess, gitUpdate } from '../utils.js';
-
-const basedir = `${homedir()}/.kirucosm`;
+import { canAccess, DATADIR, gitUpdate } from '../utils.js';
 
 export type ChainInfo =
   & {
@@ -30,8 +27,8 @@ export async function init(force = false) {
   if (!force && initialized) return chainsByName;
   initialized = false;
   
-  await fs.mkdir(basedir, { recursive: true });
-  if (!await canAccess(`${basedir}/chains.json`) || await isOutdated())
+  await fs.mkdir(DATADIR, { recursive: true });
+  if (!await canAccess(`${DATADIR}/chains.json`) || await isOutdated())
     await update();
   populate(await load());
   
@@ -61,11 +58,11 @@ export function getAssets(chainId: string) {
 }
 
 async function update() {
-  await gitUpdate('https://github.com/cosmos/chain-registry.git', `${basedir}/chain-registry`);
+  await gitUpdate('https://github.com/cosmos/chain-registry.git', `${DATADIR}/chain-registry`);
 }
 
 async function load() {
-  const repopath = `${basedir}/chain-registry`;
+  const repopath = `${DATADIR}/chain-registry`;
   const dirs = (await fs.readdir(repopath, { withFileTypes: true })).filter(dirent => dirent.isDirectory());
   return (await Promise.all(dirs.map(async dirent => {
     const { name } = dirent;
@@ -90,7 +87,7 @@ function populate(chains: { chain: any; assetlist: any; }[]) {
 }
 
 async function isOutdated() {
-  const { mtime } = await fs.stat(`${basedir}/chains.json`);
+  const { mtime } = await fs.stat(`${DATADIR}/chains.json`);
   return Date.now() - mtime.getTime() > 1000 * 60 * 60 * 24;
 }
 

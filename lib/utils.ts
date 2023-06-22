@@ -1,7 +1,10 @@
 import { toUtf8 } from '@cosmjs/encoding';
 import { exec } from 'child_process'
 import * as fs from 'fs/promises'
+import * as os from 'os'
 import * as path from 'path';
+
+export const DATADIR = path.join(os.homedir(), '.cosmdrone');
 
 export async function canAccess(filepath: string): Promise<boolean> {
   try {
