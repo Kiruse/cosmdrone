@@ -1,5 +1,7 @@
 import { toBase64, toUtf8 } from '@cosmjs/encoding'
+import chalk from 'chalk'
 import * as fs from 'fs/promises'
+import * as readline from 'readline'
 import * as tty from 'tty'
 import * as YAML from 'yaml'
 import { chain, CosmosDirectory, GatewaySync } from '../../../lib/index.js'
@@ -7,12 +9,15 @@ import { replacer } from '../../../lib/serde.js'
 import spinner from '../../spinner.js'
 import { toBinaryFields, parseFields } from '../../utils.js'
 
-export command = 'smart <chainId> <contractAddress>'
-export describe = 'Perform a defined smart query of a smart contract'
+eofstroke = if process.platform is 'win32' then 'Ctrl-Z' else 'Ctrl-D'
+
+export command = 'smart <chain> <contractAddress>'
+export describe = "Perform a defined smart query of a smart contract. " +
+  "When entering a message through stdin, you can use #{eofstroke} to signify the end of the message."
 export builder = (yargs) =>
   yargs
-    .positional 'chainId',
-      describe: 'The chain ID of the blockchain'
+    .positional 'chain',
+      describe: 'The chain ID or name of the blockchain'
       type: 'string'
     .positional 'contractAddress',
       describe: 'The address of the smart contract'
@@ -39,7 +44,7 @@ export builder = (yargs) =>
       default: []
 export handler = (argv) =>
   await spinner.named 'Initializing Gateway', => GatewaySync.init()
-  chainId = GatewaySync.getChain(argv.chainId).chain_id
+  chainId = GatewaySync.getChain(argv.chain).chain_id
   rpc = chain(CosmosDirectory, chainId)
   
   if argv.editor
@@ -51,8 +56,9 @@ export handler = (argv) =>
   else if argv.file
     msg = argv.file
   else
-    console.error "Read from stdin not yet implemented"
-    process.exit 1
+    if process.stdin.isTTY
+      console.log chalk.blue 'Enter message:'
+    msg = await readFromStdin()
   
   data = if argv.yaml
     YAML.parse(msg)
@@ -64,3 +70,11 @@ export handler = (argv) =>
   response = await spinner.named 'Querying...', => rpc.wasm.query.smart argv.contractAddress, JSON.stringify(data, replacer)
   console.log YAML.stringify response
   process.exit 0
+
+readFromStdin = -> new Promise (resolve, reject) =>
+  data = ''
+  rl = readline.createInterface process.stdin
+  rl.on 'line', (line) =>
+    data += line
+  rl.on 'close', =>
+    resolve data
