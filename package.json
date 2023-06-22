@@ -8,9 +8,9 @@
   "author": "Kiruse",
   "license": "LGPL-3.0",
   "main": "dist/lib/index.js",
-  "bin": "./dist/cli/index.js",
+  "bin": "./dist/cli/cosmdrone.js",
   "scripts": {
-    "dev": "node dist/cli/index.js",
+    "dev": "node dist/cli/cosmdrone.js",
     "watch:lib": "tsc -p tsconfig.lib.json -w",
     "watch:cli": "coffee -wmo dist/cli -c cli",
     "build": "yarn build:lib && yarn build:cli",
