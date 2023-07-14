@@ -1,11 +1,6 @@
 import { ParseError, Parser } from '@kiruse/jdf-core'
-import chalk from 'chalk'
-import * as fs from 'fs'
-import semver, { SemVer } from 'semver'
-import * as YAML from 'yaml'
 import tokenize from './tokenize.js'
 import { AST, DependencyDeclNode, DependencyReplNode, GoNode, ModuleNode, ReplaceNode, RequireNode, TokenNode } from './ast.js'
-import { TokenTypes } from './tokens.js'
 
 const parser = new Parser<AST>();
 const { ops } = parser;
@@ -21,7 +16,7 @@ parser.phase(phase => {
   phase.pass(
     ops.replace(ops.isToken('kw.go'))(node => ({
       type: 'go',
-      version: semver.coerce((node as TokenNode).token.value)!,
+      version: (node as TokenNode).token.value,
     }))
   );
 })
@@ -46,7 +41,7 @@ parser.phase(phase => {
           children.push({
             type: 'dep-decl',
             path: (url as TokenNode).token.value,
-            version: semver.coerce((version as TokenNode).token.value)!,
+            version: (version as TokenNode).token.value,
           });
         }
         
@@ -81,7 +76,7 @@ parser.phase(phase => {
             type: 'dep-repl',
             src: (src as TokenNode).token.value,
             dest: (dest as TokenNode).token.value,
-            version: semver.coerce((version as TokenNode).token.value)!,
+            version: (version as TokenNode).token.value,
           });
         }
         

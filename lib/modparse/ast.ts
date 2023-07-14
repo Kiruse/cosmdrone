@@ -28,7 +28,7 @@ export type RequireNode = {
 export type DependencyDeclNode = {
   type: 'dep-decl';
   path: string;
-  version: SemVer;
+  version: string;
 }
 
 export type ReplaceNode = {
@@ -40,7 +40,7 @@ export type DependencyReplNode = {
   type: 'dep-repl';
   src: string;
   dest: string;
-  version: SemVer;
+  version: string;
 }
 
 export type TokenNode = {
