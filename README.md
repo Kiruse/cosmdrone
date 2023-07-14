@@ -13,6 +13,7 @@ CosmDrone is a multitool for interfacing with virtually any Cosmos SDK-based blo
 - [ ] *CLI:* Smart Contract pipeline *(see below)*
 - [ ] Query IBC info (connections, channels, clients, human readable info)
 - [ ] Query arbitrary endpoints (w/ address book support)
+- [ ] ICS20 abstraction
 - [ ] *CLI:* use OpenAPI documentation to offer autocomplete
 - [ ] List, iterate & filter all smart contract state (aka. models)
 - [ ] `RPCGateway`

@@ -9,18 +9,13 @@ export class Query {
   
   async raw(contract: string, keys: string[]) {
     if (!keys.length) throw Error('No keys provided');
-    const { chainId } = this;
     const key = getJoinedKey(keys);
-    return await this.rpc.get<{}, string>({
-      chainId,
-      path: `/cosmwasm/wasm/v1/contract/${contract}/raw/${encodeURIComponent(toBase64(key))}`,
-      params: {},
-    });
+    return await this.chain.get<string>(
+      `/cosmwasm/wasm/v1/contract/${contract}/raw/${encodeURIComponent(toBase64(key))}`
+    );
   }
   
   async smart(contract: string, query: BytesLike) {
-    const { chainId } = this;
-    
     let queryBytes: string;
     if (typeof query === 'string') {
       queryBytes = toBase64(toUtf8(query));
@@ -30,13 +25,10 @@ export class Query {
       queryBytes = toBase64(query);
     }
     
-    return await this.rpc.get({
-      chainId,
-      path: `/cosmwasm/wasm/v1/contract/${contract}/smart/${queryBytes}`,
-      params: {},
-    });
+    return await this.chain.get(`/cosmwasm/wasm/v1/contract/${contract}/smart/${queryBytes}`);
   }
   
   get chainId() { return this.wasm.chainId }
+  get chain() { return this.wasm.chain }
   get rpc() { return this.wasm.rpc }
 }

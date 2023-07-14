@@ -9,6 +9,11 @@ export type ChainInfo =
       network_type: 'mainnet' | 'testnet' | 'devnet';
       bech32_prefix: string;
       slip44: number;
+      codebase: {
+        git_repo: string;
+        recommended_version: string;
+        compatible_versions: string[];
+      } & Record<PropertyKey, any>;
       apis: {
         [api_type: string]: {
           address: string;
@@ -37,6 +42,7 @@ export async function init(force = false) {
 }
 
 export function getChain(identifier: string) {
+  assertInit();
   if (identifier in chainsById) return chainsById[identifier];
   if (identifier in chainsByName) return chainsByName[identifier];
   throw Error(`Chain not found: ${identifier}`);
@@ -92,5 +98,5 @@ async function isOutdated() {
 }
 
 function assertInit() {
-  if (!initialized) throw Error('Must first initialize gateway/sync module');
+  if (!initialized) throw Error('GatewaySync module not initialized');
 }

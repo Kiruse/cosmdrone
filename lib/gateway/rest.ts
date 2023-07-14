@@ -6,7 +6,7 @@ import { validateOpenAPI } from '../validate.openapi.js'
 import * as sync from './sync.js'
 import { reviver } from '../serde.js'
 
-type DefaultParams = Record<string, string>;
+export type DefaultParams = Record<string, string>;
 
 export interface RPCGetArgs<P = DefaultParams> {
   chainId: string;
