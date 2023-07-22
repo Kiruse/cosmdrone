@@ -1,0 +1,1 @@
+Query OpenAPI documentation of a chain'

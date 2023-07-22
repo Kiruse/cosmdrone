@@ -1,7 +1,7 @@
 import * as YAML from 'yaml'
 import { chain, CosmosDirectory, GatewaySync } from '../../../lib/index.js'
-import spinner from '../../spinner.js'
-import { loadAddresses, resolveAddresses } from '../../utils.js'
+import spinner from '../../utils/spinner.js'
+import { loadAddresses, resolveAddresses } from '../../utils/misc.js'
 
 export command = 'raw <chainId> <contractAddress> <keys..>'
 export describe = 'Query raw state keys of a smart contract'

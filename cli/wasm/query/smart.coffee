@@ -6,8 +6,8 @@ import * as tty from 'tty'
 import * as YAML from 'yaml'
 import { chain, CosmosDirectory, GatewaySync } from '../../../lib/index.js'
 import { replacer } from '../../../lib/serde.js'
-import spinner from '../../spinner.js'
-import { loadAddresses, parseFields, resolveAddresses, toBinaryFields } from '../../utils.js'
+import spinner from '../../utils/spinner.js'
+import { loadAddresses, parseFields, resolveAddresses, toBinaryFields } from '../../utils/misc.js'
 
 eofstroke = if process.platform is 'win32' then 'Ctrl-Z' else 'Ctrl-D'
 

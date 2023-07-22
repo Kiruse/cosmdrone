@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import path from 'path'
 import * as YAML from 'yaml'
 import { GatewaySync as sync, CosmosDirectory } from '../../../lib/index.js'
-import spinner from '../../spinner.js'
+import spinner from '../../utils/spinner.js'
 
 export command = 'dump <chain> [filepath]'
 export describe = 'Dump OpenAPI documentation of a chain to a file'

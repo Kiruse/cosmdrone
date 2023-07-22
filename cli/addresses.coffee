@@ -3,10 +3,10 @@ import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as YAML from 'yaml'
 import { DATADIR } from '../lib/utils.js'
-import { ADDRESSBOOK, loadAddresses as load } from './utils.js'
+import { ADDRESSBOOK, loadAddresses as load } from './utils/misc.js'
 
 export command = 'addresses <subcommand>'
-export describe = 'Manage addresses for use in the CLI multitool only.\n\nWhen used in messages, addresses must be prefixed with "addr:".'
+export describe = 'Manage addresses for use in the CLI multitool only. When used in messages, addresses must be prefixed with "addr:".'
 export builder = (yargs) =>
   yargs
     .command ls 

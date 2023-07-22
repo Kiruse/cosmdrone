@@ -1,6 +1,6 @@
 import * as YAML from 'yaml'
 import { GatewaySync as sync, CosmosDirectory } from '../../../lib/index.js'
-import spinner from '../../spinner.js'
+import spinner from '../../utils/spinner.js'
 
 export command = 'show <chain> <endpoint>'
 export describe = 'Show information on a specific endpoint'

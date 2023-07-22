@@ -1,7 +1,7 @@
 import * as YAML from 'yaml'
 import { GatewaySync as sync, CosmosDirectory } from '../../../lib/index.js'
-import spinner from '../../spinner.js'
-import { getOpenAPISchemas } from '../../utils.js'
+import spinner from '../../utils/spinner.js'
+import { getOpenAPISchemas } from '../../utils/misc.js'
 
 export command = 'defs <chain>'
 export describe = 'List all (type) definitions of a chain'

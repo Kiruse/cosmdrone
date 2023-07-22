@@ -1,6 +1,6 @@
 import * as YAML from 'yaml'
 import { GatewaySync as sync, chain } from '../../lib/index.js'
-import spinner from '../spinner.js'
+import spinner from '../utils/spinner.js'
 
 export command = 'get <chain> <path>'
 export describe = 'Read from the blockchain at the given path'

@@ -2,7 +2,7 @@ import chalk from 'chalk'
 import semver from 'semver'
 import { ProtoSync } from '../../lib/api.js'
 import { GatewaySync as sync } from '../../lib/index.js'
-import spinner from '../spinner.js'
+import spinner from '../utils/spinner.js'
 
 export command = 'compile <chain> [chain-version]'
 export describe = 'Compile the ProtoBuf files for a chain. Clears the cache first.'

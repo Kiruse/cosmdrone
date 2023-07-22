@@ -2,7 +2,7 @@ import { fromBase64, fromUtf8, toBase64, toUtf8 } from '@cosmjs/encoding'
 import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as YAML from 'yaml'
-import { DATADIR } from '../lib/utils.js'
+import { DATADIR } from '../../lib/utils.js'
 
 export ADDRESSBOOK = path.join DATADIR, 'addresses.yaml'
 
