@@ -1,11 +1,33 @@
 import { toUtf8 } from '@cosmjs/encoding'
-import { exec } from 'child_process'
+import axios from 'axios'
+import { load as cheerio } from 'cheerio'
+import { ExecOptions, exec as _exec } from 'child_process'
 import * as fs from 'fs/promises'
+import { parseDocument } from 'htmlparser2'
 import * as os from 'os'
 import * as path from 'path'
-import semver from 'semver'
 
 export const DATADIR = path.join(os.homedir(), '.cosmdrone');
+
+export async function exec(cmd: string, args: string[], opts: ExecOptions & { encoding: 'buffer' }): Promise<[Buffer, Buffer]>;
+export async function exec(cmd: string, args?: string[], opts?: ExecOptions): Promise<[string, string]>;
+export async function exec(cmd: string, args: string[] = [], opts?: ExecOptions): Promise<[any, any]> {
+  return new Promise((resolve, reject) => {
+    args = args
+      .map(arg => {
+        if (arg.match(/^--?[a-zA-Z0-9_-]/))
+          return arg;
+        return '"' + arg
+          .replace(/\\/g, '\\\\')
+          .replace(/"/g, '\\"') +
+          '"';
+      })
+    _exec(cmd + ' ' + args.join(' '), opts, (err, stdout, stderr) => {
+      if (err) return reject(err);
+      resolve([stdout, stderr]);
+    });
+  });
+}
 
 export async function canAccess(filepath: string): Promise<boolean> {
   try {
@@ -14,80 +36,6 @@ export async function canAccess(filepath: string): Promise<boolean> {
   } catch {
     return false;
   }
-}
-
-export async function hasGit(): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    exec('git --version', (err, stdout, stderr) => {
-      if (err) return resolve(false);
-      resolve(stdout.startsWith('git version'));
-    });
-  });
-}
-
-export async function gitUpdate(url: string, repopath: string): Promise<void> {
-  if (!await canAccess(repopath)) {
-    await fs.mkdir(repopath, { recursive: true });
-    await gitClone(url, repopath);
-  } else {
-    await gitPull(repopath);
-  }
-}
-
-export async function gitClone(url: string, repopath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    exec(`git clone ${url} ${repopath}`, (err, stdout, stderr) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
-}
-
-export async function gitPull(repopath: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    exec(`git pull`, { cwd: repopath }, (err, stdout, stderr) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  });
-}
-
-/** Check something out with git, be it a branch or a tag. */
-export async function gitCheckout(repopath: string, gitobj: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    exec(`git checkout ${gitobj}`, { cwd: repopath }, (err, stdout, stderr) => {
-      if (err) return reject(err);
-      resolve();
-    });
-  })
-}
-
-/** Get all git tags from the given repo. */
-export async function getGitTags(repopath: string): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    exec(`git tag`, { cwd: repopath }, (err, stdout, stderr) => {
-      if (err) return reject(err);
-      const tags = stdout
-        .split('\n')
-        .map(tag => tag.trim())
-        .filter(tag => !!tag);
-      resolve(tags);
-    });
-  });
-}
-
-/** Get all git tags that look like a version, i.e. prefixed with 'v' and coercible with semver. */
-export async function getGitVersionTags(repopath: string): Promise<string[]> {
-  const tags = await getGitTags(repopath);
-  return tags.filter(tag => tag.startsWith('v') && semver.coerce(tag.slice(1)));
-}
-
-/** Get the git tag with the highest version number. If none, because either versions are tagged
- * with a non-standard name, or because no versions have been tagged, return the empty string.
- */
-export async function getLatestGitVersionTag(repopath: string): Promise<string> {
-  const tags = await getGitVersionTags(repopath);
-  return tags.sort(semver.rcompare)[0] ?? '';
 }
 
 export function getJoinedKey(path: string[]): Uint8Array {
@@ -124,4 +72,27 @@ export async function getFilesRecursively(dir: string): Promise<string[]> {
   }
   await inner(dir);
   return result;
+}
+
+/** Find files within the given `dir` that match the given `pred`. Full absolute file paths are
+ * tested against the predicate.
+ */
+export async function findFiles(dir: string, pred: ((file: string) => boolean) | RegExp): Promise<string[]> {
+  return (await getFilesRecursively(dir))
+    .filter(file => typeof pred === 'function' ? pred(file) : pred.test(file));
+}
+
+export async function webscrape(url: string) {
+  return cheerio(parseDocument((await axios.get(url)).data));
+}
+
+/** Debounce decorator. Currently, debounced function can only be used in fire-and-forget style. */
+export function debounce(wait: number) {
+  let timeout: NodeJS.Timeout;
+  return <T extends (...args: any[]) => any>(func: T) => {
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
 }

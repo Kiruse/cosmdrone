@@ -12,10 +12,10 @@
   "scripts": {
     "dev": "node dist/cli/cosmdrone.js",
     "watch:lib": "tsc -p tsconfig.lib.json -w",
-    "watch:cli": "coffee -wmo dist/cli -c cli",
+    "watch:cli": "coffee -c scripts/build-cli.coffee && node scripts/build-cli.js -w",
     "build": "yarn build:lib && yarn build:cli",
     "build:lib": "tsc -p tsconfig.lib.json",
-    "build:cli": "coffee -mo dist/cli -c cli",
+    "build:cli": "coffee -c scripts/build-cli.coffee && node scripts/build-cli.js",
     "prepack": "yarn build"
   },
   "dependencies": {
@@ -30,8 +30,11 @@
     "@scure/bip39": "^1.2.0",
     "axios": "^1.4.0",
     "chalk": "^5.2.0",
+    "cheerio": "^1.0.0-rc.12",
     "elliptic": "^6.5.4",
+    "htmlparser2": "^9.0.0",
     "keytar": "^7.9.0",
+    "node-watch": "^0.7.3",
     "ora": "^6.3.1",
     "protobuf.js": "^1.1.2",
     "rimraf": "^5.0.1",
