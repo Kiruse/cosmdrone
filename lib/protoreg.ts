@@ -204,7 +204,13 @@ async function compile(mod: string, version: string) {
 async function getDepsProtos(mod: string, version: string) {
   const {repo} = getResolved(mod);
   const repopath = getRepoPath(DEFAULT_REPODIR, repo);
-  const gomod = await parseGoMod(path.join(repopath, 'go.mod'));
+  const gomodFilepath = path.join(repopath, 'go.mod');
+  
+  // if there's no go.mod, there's no dependencies, probably
+  if (!await canAccess(gomodFilepath))
+    return [];
+  
+  const gomod = await parseGoMod(gomodFilepath);
   await checkout(mod, version);
   
   const deps = Object.entries(resolveDeps(gomod));
