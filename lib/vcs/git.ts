@@ -1,8 +1,9 @@
 import * as fs from 'fs/promises'
+import * as path from 'path'
 import { rimraf } from 'rimraf'
 import semver from 'semver'
 import { canAccess, exec } from '../utils.js'
-import { VCSBase } from './vcsbase.js'
+import { DEFAULT_REPODIR, VCSBase } from './vcsbase.js'
 
 export class Git extends VCSBase {
   async isInstalled() {
@@ -32,7 +33,15 @@ export class Git extends VCSBase {
   }
   
   async checkout(url: string, entity: string) {
-    await exec('git checkout', [entity], { cwd: this.getRepoPath(url) });
+    const cwd = this.getRepoPath(url);
+    try {
+      await exec('git checkout', [entity], {cwd});
+    } catch (err: any) {
+      if (err) {
+        err.repo = path.relative(DEFAULT_REPODIR, cwd);
+      }
+      throw err;
+    }
   }
   
   async delete(url: string) {
