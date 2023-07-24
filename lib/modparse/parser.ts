@@ -107,7 +107,7 @@ export function parseGoMod(source: string) {
   return {
     module: moduleNode.path,
     go: goNode.version,
-    requires: requireNodes.flatMap(node => node.children.map(({ path, version }) => ({ path, version }))),
+    requires: requireNodes.flatMap(node => node.children.map(({ path, version }) => ({ url: path, version }))),
     replaces: replaceNodes.flatMap(node => node.children.map(({ src, dest, version }) => ({ src, dest, version }))),
   };
 }
