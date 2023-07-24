@@ -1,4 +1,5 @@
-import { ParseError, Parser } from '@kiruse/jdf-core'
+import { ParseError, Parser, Source } from '@kiruse/jdf-core'
+import * as fs from 'fs/promises'
 import tokenize from './tokenize.js'
 import { AST, DependencyDeclNode, DependencyReplNode, GoNode, ModuleNode, ReplaceNode, RequireNode, TokenNode } from './ast.js'
 
@@ -94,8 +95,8 @@ parser.phase(phase => {
   phase.pass(ops.drop(ops.isToken('EOF')))
 });
 
-export function parseGoMod(source: string) {
-  const ast = parser.parse(tokenize(source));
+export async function parseGoMod(source: string) {
+  const ast = await parse(source);
   const moduleNode = ast.find(node => node.type === 'module') as ModuleNode | undefined;
   const goNode = ast.find(node => node.type === 'go') as GoNode | undefined;
   const requireNodes = ast.filter(node => node.type === 'require') as RequireNode[];
@@ -127,4 +128,10 @@ function splitNodes(nodes: AST[], pred: AST['type'] | ((node: AST) => boolean)):
     }
   }
   return result;
+}
+
+async function parse(filepath: string) {
+  const source = await fs.readFile(filepath, { encoding: 'utf8' });
+  const src = new Source(source, filepath);
+  return parser.parse(tokenize(src));
 }

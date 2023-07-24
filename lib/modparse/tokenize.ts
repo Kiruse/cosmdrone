@@ -1,4 +1,4 @@
-import { Err, Ok, Tokenizer } from '@kiruse/jdf-core'
+import { Err, Ok, Source, Tokenizer } from '@kiruse/jdf-core'
 import { TokenTypes } from './tokens.js'
 
 const tokenizer = new Tokenizer<TokenTypes>()
@@ -126,5 +126,5 @@ tokenizer
   })
 })
 
-const tokenize = (source: string) => tokenizer.consume(source);
+const tokenize = (source: Source) => tokenizer.consume(source);
 export default tokenize;

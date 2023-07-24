@@ -58,6 +58,7 @@ export async function get(mod: string, version: string) {
   await init();
   
   if (!reg[`${mod}@${version}`]) {
+    await resolve(mod);
     await update(mod);
     await compile(mod, version);
     _saveReg(); // debounced
@@ -72,7 +73,7 @@ export async function get(mod: string, version: string) {
  */
 export async function resolve(mod: string, force = false): Promise<GoModuleMeta> {
   await init();
-  mod = mod.replace(/^[a-zA-Z0-9_-]:\/\//, '');
+  mod = normalizeMod(mod);
   
   // we know github URLs are always valid
   if (mod.startsWith('github.com/'))
@@ -99,6 +100,14 @@ export async function resolve(mod: string, force = false): Promise<GoModuleMeta>
   };
 }
 function getResolved(mod: string): GoModuleMeta {
+  mod = normalizeMod(mod);
+  if (mod.startsWith('github.com/')) {
+    return {
+      module: mod,
+      vcs: 'git',
+      repo: `https://${mod}`,
+    };
+  }
   if (!resolutions[mod]) throw Error(`GoMod ${mod} not yet resolved`);
   return resolutions[mod];
 }
@@ -143,7 +152,15 @@ async function update(mod: string) {
 async function checkout(mod: string, version: string) {
   const { repo, vcs } = getResolved(mod);
   if (vcs !== 'git') throw Error(`Unsupported VSC type ${vcs as any}`);
-  await Git.checkout(repo, version);
+  
+  /** Special format for tagging specific commit hashes. */
+  const matches = version.match(/^v\d+\.\d+\.\d+-\d+-([a-f0-9]+)$/);
+  if (matches) {
+    const commit = matches[1];
+    await Git.checkout(repo, commit);
+  } else {
+    await Git.checkout(repo, version);
+  }
 }
 
 /** Truncate unneeded data on the given module from the protobuf registry. It will need to be
@@ -187,7 +204,7 @@ async function compile(mod: string, version: string) {
 async function getDepsProtos(mod: string, version: string) {
   const {repo} = getResolved(mod);
   const repopath = getRepoPath(DEFAULT_REPODIR, repo);
-  const gomod = parseGoMod(await fs.readFile(path.join(repopath, 'go.mod'), 'utf8'));
+  const gomod = await parseGoMod(path.join(repopath, 'go.mod'));
   await checkout(mod, version);
   
   const deps = Object.entries(resolveDeps(gomod));
@@ -195,7 +212,7 @@ async function getDepsProtos(mod: string, version: string) {
     .filter(Boolean) as string[];
 }
 
-function resolveDeps(gomod: ReturnType<typeof parseGoMod>) {
+function resolveDeps(gomod: Awaited<ReturnType<typeof parseGoMod>>) {
   const deps = Object.fromEntries(gomod.requires.map(({ url, version }) => [url, { module: url, version }]));
   for (const { src, dest, version } of gomod.replaces) {
     if (src in deps)
@@ -203,3 +220,5 @@ function resolveDeps(gomod: ReturnType<typeof parseGoMod>) {
   }
   return deps;
 }
+
+const normalizeMod = (mod: string) => mod.replace(/^[a-zA-Z0-9_-]:\/\//, '');
