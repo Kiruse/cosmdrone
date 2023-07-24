@@ -1,4 +1,4 @@
-import { ParseError, Parser, Source } from '@kiruse/jdf-core'
+import { ParseError, Parser, Source, TokenizeError } from '@kiruse/jdf-core'
 import * as fs from 'fs/promises'
 import tokenize from './tokenize.js'
 import { AST, DependencyDeclNode, DependencyReplNode, GoNode, ModuleNode, ReplaceNode, RequireNode, TokenNode } from './ast.js'
@@ -133,5 +133,19 @@ function splitNodes(nodes: AST[], pred: AST['type'] | ((node: AST) => boolean)):
 async function parse(filepath: string) {
   const source = await fs.readFile(filepath, { encoding: 'utf8' });
   const src = new Source(source, filepath);
-  return parser.parse(tokenize(src));
+  try {
+    return parser.parse(tokenize(src));
+  } catch (err) {
+    // some better error handling
+    if (err instanceof TokenizeError) {
+      const throwit: any = new Error(err.message);
+      throwit.stack = err.stack;
+      throwit.name = 'ModParseError';
+      throwit.filepath = filepath;
+      throwit.errors = err.errors.map(e => e.message);
+      throw throwit;
+    } else {
+      throw err;
+    }
+  }
 }
