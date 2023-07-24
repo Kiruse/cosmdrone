@@ -4,12 +4,13 @@ import { rimraf } from 'rimraf'
 import semver, { SemVer } from 'semver'
 import type { Chain } from './chain.js'
 import * as path from 'path'
-import { getUrl } from './urllib.js'
-import { DATADIR, canAccess, getFilesRecursively, getGitVersionTags, getLatestGitVersionTag, gitCheckout, gitUpdate } from './utils.js'
-import { GatewaySync } from './index.js'
+import { GatewaySync } from './gateway/index.js'
+import { parseGoMod } from './modparse/index.js'
 import { task } from './tasks.js'
 import { Version } from './types.js'
-import { parseGoMod } from './modparse.js'
+import { getUrl } from './urllib.js'
+import { DATADIR, canAccess, getFilesRecursively } from './utils.js'
+import { Git } from './vcs.js'
 
 const APIDIR = path.join(DATADIR, 'chain-source');
 
@@ -59,15 +60,15 @@ export class ProtoSync {
   async findVersion(version?: Version) {
     let ver: string;
     if (version) {
-      const versions = await getGitVersionTags(this.repodir);
+      const versions = await Git.getVersionTags(this.repodir);
       ver = versions.find(v => semver.satisfies(v, '^' + version)) || '';
       if (!ver) throw Error(`No version found for ${this.repodir} that satisfies ${version}.`);
     } else {
-      ver = await getLatestGitVersionTag(this.repodir);
+      ver = await Git.getLatestVersionTag(this.repodir);
       if (!ver) throw Error(`No version found for ${this.repodir}.`);
     }
     this.#version = ver;
-    await gitCheckout(this.repodir, ver);
+    await Git.checkout(this.repodir, ver);
     return this;
   }
   
@@ -85,7 +86,7 @@ export class ProtoSync {
   
   @task('Syncing API')
   async sync(version?: Version) {
-    await gitUpdate(this.remoteUrl, this.repodir);
+    await Git.update(this.remoteUrl);
     await this.findVersion(version); // find in git tags using semver & cache real tag name
     
     // attempt to load from cache first. assume exact version does not change.
@@ -103,6 +104,7 @@ export class ProtoSync {
   async syncDependencies() {
     const src = await fs.readFile(path.join(this.repodir, 'go.mod'), 'utf8');
     const deps = parseGoMod(src);
+    throw Error('not yet implemented')
   }
   
   @task('Generating API')
