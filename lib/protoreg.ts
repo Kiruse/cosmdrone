@@ -98,6 +98,10 @@ export async function resolve(mod: string, force = false): Promise<GoModuleMeta>
     repo,
   };
 }
+function getResolved(mod: string): GoModuleMeta {
+  if (!resolutions[mod]) throw Error(`GoMod ${mod} not yet resolved`);
+  return resolutions[mod];
+}
 
 export async function save() {
   if (!reg || !resolutions) throw Error('ProtoBuf registry not initialized');
@@ -125,7 +129,7 @@ async function saveResolutions() {
 const _saveResolutions = debounce(300)(saveResolutions);
 
 async function update(mod: string) {
-  const { vcs, repo } = await resolve(mod);
+  const { vcs, repo } = getResolved(mod);
   switch (vcs) {
     case 'git': {
       await Git.update(repo);
@@ -137,7 +141,8 @@ async function update(mod: string) {
 
 /** Checkout the given `version` for the repository behind `mod`. Currently only supports Git repos. */
 async function checkout(mod: string, version: string) {
-  const { repo } = await resolve(mod);
+  const { repo, vcs } = getResolved(mod);
+  if (vcs !== 'git') throw Error(`Unsupported VSC type ${vcs as any}`);
   await Git.checkout(repo, version);
 }
 
@@ -163,7 +168,8 @@ export async function truncate(mod?: string) {
 }
 
 async function compile(mod: string, version: string) {
-  const repopath = getRepoPath(DEFAULT_REPODIR, mod);
+  const {repo} = getResolved(mod);
+  const repopath = getRepoPath(DEFAULT_REPODIR, repo);
   
   const files = await findFiles(repopath, /\.proto$/);
   const depsProtos = await getDepsProtos(mod, version);
@@ -179,7 +185,8 @@ async function compile(mod: string, version: string) {
 }
 
 async function getDepsProtos(mod: string, version: string) {
-  const repopath = getRepoPath(DEFAULT_REPODIR, mod);
+  const {repo} = getResolved(mod);
+  const repopath = getRepoPath(DEFAULT_REPODIR, repo);
   const gomod = parseGoMod(await fs.readFile(path.join(repopath, 'go.mod'), 'utf8'));
   await checkout(mod, version);
   
