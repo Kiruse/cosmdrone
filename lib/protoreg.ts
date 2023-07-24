@@ -99,7 +99,12 @@ export async function resolve(mod: string, force = false): Promise<GoModuleMeta>
   };
 }
 
-export async function saveRegistry() {
+export async function save() {
+  if (!reg || !resolutions) throw Error('ProtoBuf registry not initialized');
+  await Promise.all([saveRegistry(), saveResolutions()]);
+}
+
+async function saveRegistry() {
   try {
     await fs.writeFile(METAFILE, YAML.stringify(reg));
   } catch (err: any) {
@@ -109,7 +114,7 @@ export async function saveRegistry() {
 }
 const _saveReg = debounce(300)(saveRegistry);
 
-export async function saveResolutions() {
+async function saveResolutions() {
   try {
     await fs.writeFile(RESFILE, YAML.stringify(resolutions));
   } catch (err: any) {
