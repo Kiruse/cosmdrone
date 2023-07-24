@@ -5,7 +5,7 @@ spinner = (cb) => spinner.named '', cb
 export default spinner
 
 spinner.named = (label, cb) =>
-  if isatty
+  if isatty process.stdout.fd
     inst = ora(label).start()
     try
       result = await cb inst
