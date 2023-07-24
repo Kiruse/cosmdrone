@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises'
-import { canAccess, DATADIR, gitUpdate } from '../utils.js';
+import { canAccess, DATADIR } from '../utils.js';
+import { Git } from '../vcs.js'
 
 export type ChainInfo =
   & {
@@ -64,11 +65,11 @@ export function getAssets(chainId: string) {
 }
 
 async function update() {
-  await gitUpdate('https://github.com/cosmos/chain-registry.git', `${DATADIR}/chain-registry`);
+  await Git.update('github.com/cosmos/chain-registry');
 }
 
 async function load() {
-  const repopath = `${DATADIR}/chain-registry`;
+  const repopath = Git.getRepoPath('github.com/cosmos/chain-registry');
   const dirs = (await fs.readdir(repopath, { withFileTypes: true })).filter(dirent => dirent.isDirectory());
   return (await Promise.all(dirs.map(async dirent => {
     const { name } = dirent;
