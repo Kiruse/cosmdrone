@@ -74,6 +74,24 @@ tokenizer
   api.pushMode('require');
   return Ok('');
 })
+.token('kw.require.single', api => {
+  api.src.consumeWord('require');
+  api.src.consumeWS();
+  
+  let res = api.consume('lit.url');
+  api.src.consumeWS();
+  if (!res.ok) return Err(`Token 'kw.require' expected module URL after 'require' keyword`);
+  const url = res.value;
+  
+  res = api.consume('lit.version');
+  if (!res.ok) return Err(`Token 'kw.require' expected module version after module URL`);
+  const version = res.value;
+  
+  if (!api.consume('special.newline').ok)
+    return Err(`Token 'kw.require' expected newline after module version`);
+  
+  return Ok(`${url} ${version}`);
+})
 .token('kw.replace.open', api => {
   if (!api.src.consumeWord('replace'))
     return Err(`Token 'kw.replace' expected 'replace' keyword`);
@@ -82,6 +100,33 @@ tokenizer
     return Err(`Token 'kw.replace' expected '(' after 'replace' keyword`);
   api.pushMode('replace');
   return Ok('');
+})
+.token('kw.replace.single', api => {
+  api.src.consumeWord('replace');
+  api.src.consumeWS();
+  
+  let res = api.consume('lit.url');
+  api.src.consumeWS();
+  if (!res.ok) return Err(`Token 'kw.replace' expected source module URL after 'replace' keyword`);
+  const src = res.value;
+  
+  if (!api.consume('op.arrow').ok)
+    return Err(`Token 'kw.replace' expected '=>' after source module URL`);
+  api.src.consumeWS();
+  
+  res = api.consume('lit.url');
+  api.src.consumeWS();
+  if (!res.ok) return Err(`Token 'kw.replace' expected destination module URL after '=>'`);
+  const dest = res.value;
+  
+  res = api.consume('lit.version');
+  if (!res.ok) return Err(`Token 'kw.replace' expected module version after destination module URL`);
+  const version = res.value;
+  
+  if (!api.consume('special.newline').ok)
+    return Err(`Token 'kw.replace' expected newline after module version`);
+  
+  return Ok(`${src} ${dest} ${version}`);
 })
 
 .mode('require', tokenizer => {

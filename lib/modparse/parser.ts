@@ -23,7 +23,7 @@ parser.phase(phase => {
 })
 
 parser.phase(phase => {
-  phase.pass(
+  phase.pass( // multi-line require
     ops.group(ops.isToken('kw.require.open'), ops.isToken('kw.require.close'))(
       (left, nodes, right) => {
         const children: DependencyDeclNode[] = [];
@@ -53,7 +53,28 @@ parser.phase(phase => {
       }
     )
   )
-  phase.pass(
+  phase.pass( // single-line require
+    nodes => {
+      const data = ops.findDeepNode(nodes, ops.isToken('kw.require.single'));
+      if (!data) return false;
+      
+      const [url, version] = (data.node as TokenNode).token.value!.split(' ');
+      if (!url || !version)
+        throw new ParseError('Invalid single require rule', data.node.loc);
+      
+      data.siblings.splice(data.index, 1, {
+        type: 'require',
+        children: [{
+          type: 'dep-decl',
+          path: url,
+          version,
+        }],
+        loc: data.node.loc,
+      });
+      return true;
+    }
+  )
+  phase.pass( // multi-line replace
     ops.group(ops.isToken('kw.replace.open'), ops.isToken('kw.replace.close'))(
       (left, nodes, right) => {
         const children: DependencyReplNode[] = [];
@@ -87,6 +108,28 @@ parser.phase(phase => {
         };
       }
     )
+  )
+  phase.pass( // single-line replace
+    nodes => {
+      const data = ops.findDeepNode(nodes, ops.isToken('kw.replace.single'));
+      if (!data) return false;
+      
+      const [src, dest, version] = (data.node as TokenNode).token.value!.split(' ');
+      if (!src || !dest || !version)
+        throw new ParseError('Invalid single replace rule', data.node.loc);
+      
+      data.siblings.splice(data.index, 1, {
+        type: 'replace',
+        children: [{
+          type: 'dep-repl',
+          src,
+          dest,
+          version,
+        }],
+        loc: data.node.loc,
+      });
+      return true;
+    }
   )
 });
 

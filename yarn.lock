@@ -106,10 +106,10 @@
     wrap-ansi "^8.1.0"
     wrap-ansi-cjs "npm:wrap-ansi@^7.0.0"
 
-"@kiruse/jdf-core@^0.2.3-hotfix.1":
-  version "0.2.3-hotfix.1"
-  resolved "https://registry.yarnpkg.com/@kiruse/jdf-core/-/jdf-core-0.2.3-hotfix.1.tgz#acb1a3e593b062f02a007f2dc0c290c01b3f9c6d"
-  integrity sha512-ccBARYVEm/brVlGCCM67dck6emyblYXJNfnOAXI6DD60HIdsxTydDgBri5cmDPU/5spYatHM1fZy3TGR8dDgwA==
+"@kiruse/jdf-core@^0.2.4-alpha.1":
+  version "0.2.4-alpha.1"
+  resolved "https://registry.yarnpkg.com/@kiruse/jdf-core/-/jdf-core-0.2.4-alpha.1.tgz#58ce28ef18a1bf5447d201562d965385709fc61a"
+  integrity sha512-FaHAWh+Vn8EcMcngQ1a5wDVgDAmpZdhNrAibycwrExrDfmPrHPtfiAU46BGsvfDnJ3eManri4oX2EE4aY2P65A==
   dependencies:
     chalk "^4"
 

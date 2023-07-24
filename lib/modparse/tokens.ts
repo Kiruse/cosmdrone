@@ -18,8 +18,10 @@ type SpecialTokenTypes =
 type KeywordTokenTypes =
   | 'kw.module'
   | 'kw.go'
+  | 'kw.require.single'
   | 'kw.require.open'
   | 'kw.require.close'
+  | 'kw.replace.single'
   | 'kw.replace.open'
   | 'kw.replace.close'
 
